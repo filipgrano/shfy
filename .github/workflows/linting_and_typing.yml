@@ -1,0 +1,52 @@
+# .github/workflows/linting_and_typing.yml
+
+# Run on every push and pull request to the main and master branches. 
+# isort with the --check and --diff flags to check import sorting and show a diff of suggested changes.
+# black with the --check flag to check code formatting.
+# pylint to check code quality and style.
+# mypy for static type checking.
+# The tools will use the configurations provided in your .pre-commit-config.yml and pyproject.toml files. 
+# If any tool reports issues, the GitHub Actions workflow will fail, and you can check the logs to identify and 
+# fix the problems.
+
+name: Linting and Typing
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint-and-type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install isort black pylint mypy
+          pip install .
+
+      - name: Run isort
+        run: isort --check --diff .
+
+      - name: Run black
+        run: black --check .
+
+      - name: Run pylint
+        run: pylint **/*.py
+
+      - name: Run mypy
+        run: mypy .
