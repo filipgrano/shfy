@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="oai_tools",
-    version="0.1.0",
+    version="0.1.1",
     author="Filip Granö",
     author_email="filip-accounts@grano.me",
     description="Collection of useful tools built on top of OpenAI's API",
