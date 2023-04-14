@@ -15,9 +15,3 @@ Configuration file is read from `~/.config/oai_tools/config.yaml` file. See the 
 ### API Key
 OpenAI's API key is required. 
 The key is read from the `OPENAI_API_KEY` environment variable. If this variable is not set, the API key is read from the `~/.config/oai_tools/api_key` file.
-
-## Development
-### Pre-commit hooks
-pip install pre-commit pylint mypy black isort
-pre-commit install
-pre-commit run --all-files
