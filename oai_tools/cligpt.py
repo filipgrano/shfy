@@ -1,10 +1,12 @@
+import logging
 import os
 import platform
-import openai
-import logging
-import sys
-import subprocess
 import selectors
+import subprocess
+import sys
+
+import openai
+
 from oai_tools import get_api_key, read_config
 
 openai.api_key = get_api_key()
@@ -27,8 +29,10 @@ def get_shell() -> str:
     system = platform.system()
     if system == "Windows":
         return os.environ.get("COMSPEC", "cmd.exe").strip()
-    elif system in ["Linux", "Darwin"]:
+    if system in ["Linux", "Darwin"]:
         return os.environ.get("SHELL", "/bin/bash").strip()
+
+    raise ValueError(f"Unsupported platform: {system}")
 
 
 def generate_command(prompt: str) -> openai.ChatCompletion:
@@ -41,7 +45,7 @@ def generate_command(prompt: str) -> openai.ChatCompletion:
 
         Return ONLY the command, no other explanation, words, code highlighting, or text."""
 
-    logging.debug(f"Generating command for prompt: {prompt}")
+    logging.debug("Generating command for prompt: %s", prompt)
 
     response = openai.ChatCompletion.create(
         model=MODEL,
@@ -65,7 +69,7 @@ def explain_command(suggestion: str, prompt: str) -> openai.ChatCompletion:
 
         Return ONLY the explanation and if the requested task is fulfilled, on a single line. No other words, code highlighting, or text."""
 
-    logging.debug(f"Explaining command: {suggestion}")
+    logging.debug("Explaining command: %s", suggestion)
 
     response = openai.ChatCompletion.create(
         model=MODEL,
@@ -80,9 +84,9 @@ def explain_command(suggestion: str, prompt: str) -> openai.ChatCompletion:
 def execute_command(command: str) -> None:
     """Execute a shell command and print its output and errors as they are produced."""
     shell = get_shell()
-    logging.debug(f"Executing shell command in shell '{shell}': {command}")
+    logging.debug("Executing shell command in shell %s: %s", shell, command)
 
-    process = subprocess.Popen(
+    with subprocess.Popen(
         command,
         shell=True,
         stdout=subprocess.PIPE,
@@ -90,34 +94,42 @@ def execute_command(command: str) -> None:
         text=True,
         bufsize=1,
         executable=shell,
-    )
+    ) as process:
+        selector = selectors.DefaultSelector()
+        if process.stdout:
+            selector.register(process.stdout, selectors.EVENT_READ)
+        if process.stderr:
+            selector.register(process.stderr, selectors.EVENT_READ)
 
-    selector = selectors.DefaultSelector()
-    selector.register(process.stdout, selectors.EVENT_READ)
-    selector.register(process.stderr, selectors.EVENT_READ)
+        while process.poll() is None:
+            for key, _ in selector.select():
+                line = None
+                if key.fileobj is process.stdout and process.stdout:
+                    line = process.stdout.readline()
+                elif key.fileobj is process.stderr and process.stderr:
+                    line = process.stderr.readline()
 
-    while process.poll() is None:
-        for key, _ in selector.select():
-            line = key.fileobj.readline()
-            if line:
-                if key.fileobj is process.stdout:
-                    print(line, end="")
-                elif key.fileobj is process.stderr:
-                    print(line, end="", file=sys.stderr)
+                if line is not None:
+                    if key.fileobj is process.stdout:
+                        print(line, end="")
+                    elif key.fileobj is process.stderr:
+                        print(line, end="", file=sys.stderr)
 
-    return_code = process.returncode
-    logging.debug(f"Shell command results -- return code: {return_code}")
+        return_code = process.returncode
+        logging.debug("Shell command results -- return code: %s", return_code)
 
-    # Clean up
-    selector.unregister(process.stdout)
-    selector.unregister(process.stderr)
-    process.stdout.close()
-    process.stderr.close()
+        # Clean up
+        if process.stdout:
+            selector.unregister(process.stdout)
+            process.stdout.close()
+        if process.stderr:
+            selector.unregister(process.stderr)
+            process.stderr.close()
 
 
 def main():
     prompt = " ".join(sys.argv[1:])
-    logging.debug(f"Prompt: {prompt}")
+    logging.debug("Prompt: %s", prompt)
 
     command_query_response = generate_command(prompt)
     suggestion = command_query_response.choices[0].message.content

@@ -1,12 +1,13 @@
 import os
+
 import yaml
 
 
 def read_config() -> dict:
     config_file = os.path.expanduser("~/.config/oai_tools/config.yaml")
     if os.path.exists(config_file):
-        with open(config_file, "r") as f:
-            return yaml.safe_load(f)
+        with open(config_file, "r", encoding="utf-8") as config:
+            return yaml.safe_load(config)
     return {}
 
 
@@ -18,7 +19,7 @@ def get_api_key() -> str:
 
     config_file = os.path.expanduser("~/.config/oai_tools/api_key")
     if os.path.exists(config_file):
-        with open(config_file, "r") as f:
-            return f.read().strip()
+        with open(config_file, "r", encoding="utf-8") as api_key_file:
+            return api_key_file.read().strip()
 
     raise ValueError("API key not found in environment variable or config file")
