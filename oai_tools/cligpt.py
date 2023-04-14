@@ -60,15 +60,7 @@ def generate_command(prompt: str) -> openai.ChatCompletion:
 
 def explain_command(suggestion: str, prompt: str) -> openai.ChatCompletion:
     """Generate an explanation of a suggested command using GPT-3.5."""
-    query = f"""Explain as briefly as possible how the following command works, what it does and if it is safe to use (why not if not):
-
-        {suggestion}
-
-        Does it fulfill the requested task, yes or no: 
-        
-        {prompt}
-
-        Return ONLY the explanation and if the requested task is fulfilled, on a single line. No other words, code highlighting, or text."""
+    query = f"Explain in brief how the command '{suggestion}' works, what it does, and if it's safe to use (why not if not). Also state if it fulfills the requested task '{prompt}' or not. Return the explanation and task fulfillment status in a single line. No other words, code highlighting, or text. Don't repeat the command or the task."
 
     logging.debug("Explaining command: %s", suggestion)
 
