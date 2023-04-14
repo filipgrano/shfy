@@ -18,6 +18,7 @@ LOG_LEVEL = cligpt_config.get("loglevel", "INFO")
 logging.basicConfig(level=logging.getLevelName(LOG_LEVEL))
 
 MODEL = cligpt_config.get("model", "gpt-3.5-turbo")
+AUTO_EXPLAIN = cligpt_config.get("auto_explain", True)
 MAX_TOKENS_COMMAND = cligpt_config.get("max_tokens", {}).get("command", 100)
 MAX_TOKENS_EXPLANATION = cligpt_config.get("max_tokens", {}).get("explanation", 100)
 TEMPERATURE_COMMAND = cligpt_config.get("temperature", {}).get("command", 0.9)
@@ -128,22 +129,39 @@ def execute_command(command: str) -> None:
 
 
 def main():
-    prompt = " ".join(sys.argv[1:])
-    logging.debug("Prompt: %s", prompt)
+    try:
+        prompt = " ".join(sys.argv[1:])
+        logging.debug("Prompt: %s", prompt)
 
-    command_query_response = generate_command(prompt)
-    suggestion = command_query_response.choices[0].message.content
-    print(f"Suggestion: {suggestion}")
+        command_query_response = generate_command(prompt)
+        suggestion = command_query_response.choices[0].message.content
+        print(f"Suggestion: {suggestion}")
 
-    explanation_query_response = explain_command(suggestion, prompt)
-    explanation = explanation_query_response.choices[0].message.content
-    print(f"Explanation: {explanation}")
+        if AUTO_EXPLAIN:
+            explanation_query_response = explain_command(suggestion, prompt)
+            explanation = explanation_query_response.choices[0].message.content
+            print(f"Explanation: {explanation}")
+            confirmation = input("Execute suggested command? (Y/N): ").lower()
+        else:
+            confirmation = input("Execute suggested command? (Y/N) | Explain command? (E): ").lower()
 
-    confirmation = input("Execute suggested command? (Y/N): ").lower()
-    if confirmation == "y":
-        execute_command(suggestion)
-    else:
-        print("Phew, good that I asked...")
+        while True:
+            if confirmation == "e" and not AUTO_EXPLAIN:
+                explanation_query_response = explain_command(suggestion, prompt)
+                explanation = explanation_query_response.choices[0].message.content
+                print(f"Explanation: {explanation}")
+                confirmation = input("Execute suggested command? (Y/N): ").lower()
+            elif confirmation == "y":
+                execute_command(suggestion)
+                break
+            elif confirmation == "n":
+                print("Phew, good that I asked...")
+                break
+            else:
+                print("Invalid input. Please enter Y, N, or E.")
+                confirmation = input("Execute suggested command? (Y/N) | Explain command? (E): ").lower()
+    except KeyboardInterrupt:
+        print("\nAborted by user.")
 
 
 if __name__ == "__main__":

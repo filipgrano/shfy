@@ -14,4 +14,4 @@ Gateway is responding
 
 ## Configuration
 Configuration is not required. Cligpt can be configured by editing the `~/.config/oai_tools/config.yaml` file. See the [config-example.yaml](config-example.yaml) file for more details.
-The configuration file allows you to set the log level, model, maximum tokens for each query, and temperature for each query.
+The configuration file allows you to set the log level, automatic command explanation, model, maximum tokens for each query, and temperature for each query.
