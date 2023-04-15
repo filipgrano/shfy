@@ -16,7 +16,7 @@ LOG_LEVEL = cligpt_config.get("loglevel", "INFO")
 logging.basicConfig(level=logging.getLevelName(LOG_LEVEL))
 
 MODEL = cligpt_config.get("model", "gpt-3.5-turbo")
-AUTO_EXPLAIN = cligpt_config.get("auto_explain", True)
+AUTO_EXPLAIN = cligpt_config.get("auto_explain", False)
 MAX_TOKENS_COMMAND = cligpt_config.get("max_tokens", {}).get("command", 100)
 MAX_TOKENS_EXPLANATION = cligpt_config.get("max_tokens", {}).get("explanation", 100)
 TEMPERATURE_COMMAND = cligpt_config.get("temperature", {}).get("command", 0.9)
