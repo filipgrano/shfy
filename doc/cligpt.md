@@ -2,14 +2,38 @@
 cligpt is a command-line helper tool that takes a user prompt and returns shell commands, along with explanations of what they do. It uses OpenAI's GPT models to generate these suggestions and explanations.
 
 ## Usage
-To use cligpt, simply type cligpt <your_prompt> into your terminal. For example, if you wanted to ping your network gateway, you could type:
+To use cligpt, simply type `cligpt <your_prompt>` into your terminal. For example, if you wanted to ping your network gateway, you could type:
 
 ```
-$ cligpt Find my network gateway and check if it is responding
-Suggestion: ping -c 1 $(ip route | grep default | awk '{print $3}') > /dev/null && echo "Gateway is responding"
-Explanation: This command uses the "ping" tool to send a single packet to the default gateway of the network, which is determined by parsing the output of the "ip route" command. If the gateway responds, the command displays the message "Gateway is responding". It fulfills the requested task.
+filip@debluna:~$ cligpt find my network gateway and check if it is responding
+Suggestion: ping $(ip route show default | awk '/default/ {print $3}') -c 1
+Execute suggested command? (Y/N) | Explain command? (E): y
+PING 192.168.226.2 (192.168.226.2) 56(84) bytes of data.
+64 bytes from 192.168.226.2: icmp_seq=1 ttl=128 time=0.342 ms
+
+--- 192.168.226.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.342/0.342/0.342/0.000 ms
+filip@debluna:~$
+
+```
+By default cligpt will not explain the command, but you can ask it to by typing `e` when prompted. You can also configure it to always explain.
+
+```
+(venv) filip@debluna:~$ cligpt find my network gateway and check if it is responding. Say Hurray! if it is, and something is not right when it is not
+Suggestion: ping -c 1 $(ip route show | awk '/default/ {print $3}') && echo "Hurray!" || echo "Something is not right"
+Execute suggested command? (Y/N) | Explain command? (E): e
+Explanation: The command finds the network gateway, pings it once, and outputs "Hurray!" if it responds, and "Something is not right" if it does not. It is safe to use. Task fulfilled.
 Execute suggested command? (Y/N): y
-Gateway is responding
+PING 192.168.226.2 (192.168.226.2) 56(84) bytes of data.
+64 bytes from 192.168.226.2: icmp_seq=1 ttl=128 time=0.323 ms
+
+--- 192.168.226.2 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.323/0.323/0.323/0.000 ms
+Hurray!
+filip@debluna:~$
+
 ```
 
 ## Configuration
