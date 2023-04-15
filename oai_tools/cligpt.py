@@ -1,8 +1,6 @@
 import logging
 import os
 import platform
-import selectors
-import subprocess
 import sys
 
 import openai
@@ -79,45 +77,11 @@ def execute_command(command: str) -> None:
     shell = get_shell()
     logging.debug("Executing shell command in shell %s: %s", shell, command)
 
-    with subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        bufsize=1,
-        executable=shell,
-    ) as process:
-        selector = selectors.DefaultSelector()
-        if process.stdout:
-            selector.register(process.stdout, selectors.EVENT_READ)
-        if process.stderr:
-            selector.register(process.stderr, selectors.EVENT_READ)
+    command = command.replace('"', r"\"")
+    command = f'{shell} -c "{command}" '
+    return_code = os.system(command)
 
-        while process.poll() is None:
-            for key, _ in selector.select():
-                line = None
-                if key.fileobj is process.stdout and process.stdout:
-                    line = process.stdout.readline()
-                elif key.fileobj is process.stderr and process.stderr:
-                    line = process.stderr.readline()
-
-                if line is not None:
-                    if key.fileobj is process.stdout:
-                        print(line, end="")
-                    elif key.fileobj is process.stderr:
-                        print(line, end="", file=sys.stderr)
-
-        return_code = process.returncode
-        logging.debug("Shell command results -- return code: %s", return_code)
-
-        # Clean up
-        if process.stdout:
-            selector.unregister(process.stdout)
-            process.stdout.close()
-        if process.stderr:
-            selector.unregister(process.stderr)
-            process.stderr.close()
+    logging.debug("Shell command results -- return code: %s", return_code)
 
 
 def main():
