@@ -7,7 +7,7 @@ This repository contains a collection of useful tools built on top of OpenAI's A
 
 ## Tools
 
-1. **cligpt**: A command-line helper that takes a user prompt and returns shell commands, along with explanations of what they do. See [cligpt.md](doc/cligpt.md) for more details.
+1. **cligpt**: A command-line helper that takes a user prompt and returns shell commands, along with explanations of what they do. It also supports command completions for various shells. See [cligpt.md](doc/cligpt.md) for more details.
 
 ## Configuration
 Configuration file is read from `~/.config/oai_tools/config.yaml` file. See the [config-example.yaml](doc/config-example.yaml) file for more details.

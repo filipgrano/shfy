@@ -1,10 +1,14 @@
-# cligpt
-cligpt is a command-line helper tool that takes a user prompt and returns shell commands, along with explanations of what they do. It uses OpenAI's GPT models to generate these suggestions and explanations.
+# Cligpt
+Cligpt is your best friend when you don't remember how to do something on the command line. It takes a description of what you want to do and returns a command that does it (and a explanation of how it works). It can also be used as a shell completion tool. It uses OpenAI's GPT models to generate these suggestions and explanations.
 
-## Usage
+## Configuration
+Configuration is not required. Cligpt can be configured by editing the `~/.config/oai_tools/config.yaml` file. See the [config-example.yaml](config-example.yaml) file for more details.
+The configuration file allows you to set the log level, automatic command explanation, model, maximum tokens for each query, and temperature for each query.
+
+## Basic Usage
 To use cligpt, simply type `cligpt <your_prompt>` into your terminal. For example, if you wanted to ping your network gateway, you could type:
 
-```
+```bash
 filip@debluna:~$ cligpt find my network gateway and check if it is responding
 Suggestion: ping $(ip route show default | awk '/default/ {print $3}') -c 1
 Execute suggested command? (Y/N) | Explain command? (E): y
@@ -19,7 +23,7 @@ filip@debluna:~$
 ```
 By default cligpt will not explain the command, but you can ask it to by typing `e` when prompted. You can also configure it to always explain.
 
-```
+```bash
 (venv) filip@debluna:~$ cligpt find my network gateway and check if it is responding. Say Hurray! if it is, and something is not right when it is not
 Suggestion: ping -c 1 $(ip route show | awk '/default/ {print $3}') && echo "Hurray!" || echo "Something is not right"
 Execute suggested command? (Y/N) | Explain command? (E): e
@@ -33,9 +37,99 @@ PING 192.168.226.2 (192.168.226.2) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.323/0.323/0.323/0.000 ms
 Hurray!
 filip@debluna:~$
-
 ```
 
-## Configuration
-Configuration is not required. Cligpt can be configured by editing the `~/.config/oai_tools/config.yaml` file. See the [config-example.yaml](config-example.yaml) file for more details.
-The configuration file allows you to set the log level, automatic command explanation, model, maximum tokens for each query, and temperature for each query.
+## Shell Completion
+cligpt can also be used as a shell completion tool. It can be configured to run automatically when you press a key combination (e.g. Ctrl-G) before pressing Enter. This way, you can type a command or description and press the key combination to get a suggested command. This is especially useful when you don't remember the exact command you need, but you know what it should do.
+
+Completion is currently supported for Bash, Zsh, and PowerShell. More shells can probably be supported by adding a completion script for them. If you want to add support for a shell, please open an issue or a pull request.
+
+### BASH
+Assuming cligpt_completion is in your $PATH. Add the following to your .bashrc or .bash_profile file:
+```bash
+cligpt_complete() {
+    # Get the current command line
+    current_command="${READLINE_LINE:0:$READLINE_POINT}"
+
+    # Save the current cursor position and print an indicator
+    tput sc
+    printf " [cligpt is working...]"
+
+    # Get the completion from the cligpt_completion Python script
+    completion=$(cligpt_completion "$current_command")
+
+    # Restore the cursor position, clear the indicator, and update the command line
+    tput rc
+    tput el
+    READLINE_LINE="$completion"
+    READLINE_POINT=${#completion}
+}
+
+bind -x '"\C-g": cligpt_complete'
+```
+Restart your terminal. Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, the shell will display an indicator while cligpt is working, and the existing line will be replaced with the suggested command.
+
+### ZSH
+Assuming cligpt_completion is in your $PATH. Add the following to your .zshrc file:
+```zsh
+cligpt_complete() {
+    # Get the current command line
+    current_command="${BUFFER[0,CURSOR]}"
+
+    # Save the current cursor position and print an indicator
+    tput sc
+    printf " [cligpt...]"
+
+    # Get the completion from the cligpt_completion Python script
+    completion=$(cligpt_completion "$current_command")
+
+    # Restore the cursor position, clear the indicator, and update the command line
+    tput rc
+    tput el
+    BUFFER="$completion"
+    CURSOR=${#completion}
+}
+
+# Register the cligpt_complete function as a widget
+zle -N cligpt_complete
+
+bindkey '^G' cligpt_complete
+```
+Restart your terminal. Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, the shell will display an indicator while cligpt is working, and the existing line will be replaced with the suggested command.
+
+### PowerShell
+
+1. Create a PowerShell script named CligptCompletion.ps1 with the following content. This script will call the cligpt_completion pythonscript and return the suggested command:
+```powershell
+param (
+    [string]$CurrentCommand
+)
+
+$Completion = cligpt_completion $CurrentCommand
+Write-Output $Completion
+```
+
+2. Open your PowerShell profile script (usually located at `C:\Users\<username>\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1`). If the file doesn't exist, create it. Add the following function to the PowerShell profile script:
+```powershell   
+function Invoke-CligptCompletion {
+    $currentCommand = $Host.UI.RawUI.ReadKey("IncludeKeyUp,NoEcho").Character
+    $completion = & "C:\path\to\CligptCompletion.ps1" $currentCommand
+    $Host.UI.RawUI.FlushInputBuffer()
+    [System.Console]::Write($completion)
+}
+```
+Make sure to replace `C:\path\to\CligptCompletion.ps1` with the actual path to the cligptCompletion.ps1 script.
+
+3. Bind the Invoke+cligptCompletion function to a key combination in the PowerShell profile script, for example, Ctrl+G:
+```powershell
+$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp") | Out-Null
+Register-ObjectEvent -InputObject $Host.UI.RawUI -EventName KeyEvent -Action {
+    if ($EventArgs.KeyDown -and $EventArgs.Character -eq [char]7) {
+        Invoke-CligptCompletion
+    }
+} | Out-Null
+```
+This will create an event listener that triggers the Invoke-cligptCompletion function when you press Ctrl-G.
+
+4. Restart PowerShell and try it out!
+Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, PowerShell will call the Invoke-cligptCompletion function, which in turn calls the cligptCompletion.ps1 script to get the suggested completion. The completion is then inserted into the command line, replacing the original input.
