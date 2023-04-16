@@ -2,8 +2,8 @@
 
 This repository contains a collection of useful tools built on top of OpenAI's API. These tools can help automate various tasks and provide assistance through natural language processing.
 
-## Installation
-`pip install .`
+## Installation or Upgrade
+`pip install --upgrade oai-tools`
 
 ## Tools
 
