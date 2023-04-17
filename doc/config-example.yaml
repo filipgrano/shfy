@@ -6,5 +6,5 @@ cligpt:
     command: 100
     explanation: 100
   temperature:
-    command: 0.9
-    explanation: 0.9
+    command: 0.1
+    explanation: 0.1

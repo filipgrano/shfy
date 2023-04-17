@@ -10,7 +10,7 @@ config = read_config()
 cligpt_config = config.get("cligpt", {})
 MODEL = cligpt_config.get("model", "gpt-3.5-turbo")
 MAX_TOKENS_COMMAND = cligpt_config.get("max_tokens", {}).get("command", 100)
-TEMPERATURE_COMMAND = cligpt_config.get("temperature", {}).get("command", 0.9)
+TEMPERATURE_COMMAND = cligpt_config.get("temperature", {}).get("command", 0.1)
 
 
 def main():
