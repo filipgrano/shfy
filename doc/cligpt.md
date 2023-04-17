@@ -42,7 +42,7 @@ filip@debluna:~$
 ## Shell Completion
 cligpt can also be used as a shell completion tool. It can be configured to run automatically when you press a key combination (e.g. Ctrl-G) before pressing Enter. This way, you can type a command or description and press the key combination to get a suggested command. This is especially useful when you don't remember the exact command you need, but you know what it should do.
 
-Completion is currently supported for Bash, Zsh, and PowerShell. More shells can probably be supported by adding a completion script for them. If you want to add support for a shell, please open an issue or a pull request.
+Completion is currently supported for Bash and Zsh. More shells can probably be supported by adding a completion script for them. If you want to add support for a shell, please open an issue or a pull request.
 
 ### BASH
 Assuming cligpt_completion is in your $PATH. Add the following to your .bashrc or .bash_profile file:
@@ -96,40 +96,3 @@ zle -N cligpt_complete
 bindkey '^G' cligpt_complete
 ```
 Restart your terminal. Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, the shell will display an indicator while cligpt is working, and the existing line will be replaced with the suggested command.
-
-### PowerShell
-
-1. Create a PowerShell script named CligptCompletion.ps1 with the following content. This script will call the cligpt_completion pythonscript and return the suggested command:
-```powershell
-param (
-    [string]$CurrentCommand
-)
-
-$Completion = cligpt_completion $CurrentCommand
-Write-Output $Completion
-```
-
-2. Open your PowerShell profile script (usually located at `C:\Users\<username>\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1`). If the file doesn't exist, create it. Add the following function to the PowerShell profile script:
-```powershell   
-function Invoke-CligptCompletion {
-    $currentCommand = $Host.UI.RawUI.ReadKey("IncludeKeyUp,NoEcho").Character
-    $completion = & "C:\path\to\CligptCompletion.ps1" $currentCommand
-    $Host.UI.RawUI.FlushInputBuffer()
-    [System.Console]::Write($completion)
-}
-```
-Make sure to replace `C:\path\to\CligptCompletion.ps1` with the actual path to the cligptCompletion.ps1 script.
-
-3. Bind the Invoke+cligptCompletion function to a key combination in the PowerShell profile script, for example, Ctrl+G:
-```powershell
-$Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyUp") | Out-Null
-Register-ObjectEvent -InputObject $Host.UI.RawUI -EventName KeyEvent -Action {
-    if ($EventArgs.KeyDown -and $EventArgs.Character -eq [char]7) {
-        Invoke-CligptCompletion
-    }
-} | Out-Null
-```
-This will create an event listener that triggers the Invoke-cligptCompletion function when you press Ctrl-G.
-
-4. Restart PowerShell and try it out!
-Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, PowerShell will call the Invoke-cligptCompletion function, which in turn calls the cligptCompletion.ps1 script to get the suggested completion. The completion is then inserted into the command line, replacing the original input.
