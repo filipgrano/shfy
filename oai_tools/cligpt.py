@@ -36,7 +36,7 @@ def get_shell() -> str:
 
 def generate_command(prompt: str) -> openai.ChatCompletion:
     """Generate a shell command using GPT-3.5 based on the given prompt."""
-    query = f"""Write a shell command that works in the following shell: {get_shell()}
+    query = f"""Write a shell command that works on the {platform.system()} platform in the following shell: {get_shell()}
 
         The command must accomplish this task:
 
@@ -77,8 +77,15 @@ def execute_command(command: str) -> None:
     shell = get_shell()
     logging.debug("Executing shell command in shell %s: %s", shell, command)
 
-    command = command.replace('"', r"\"")
-    command = f'{shell} -c "{command}" '
+    if platform.system() == "Windows":
+        if "powershell" in shell.lower():
+            command = f'powershell.exe -Command "& {{ {command} }}"'
+        else:
+            command = f'cmd.exe /C "{command}"'
+    else:
+        command = command.replace('"', r"\"")
+        command = f'{shell} -c "{command}"'
+
     return_code = os.system(command)
 
     logging.debug("Shell command results -- return code: %s", return_code)
