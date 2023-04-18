@@ -1,15 +1,14 @@
-# .github/workflows/linting_and_typing.yml
-
 # Run on every push and pull request to the main and master branches. 
 # isort with the --check and --diff flags to check import sorting and show a diff of suggested changes.
 # black with the --check flag to check code formatting.
 # pylint to check code quality and style.
 # mypy for static type checking.
+# pytest for unit tests.
 # The tools will use the configurations provided in your .pre-commit-config.yml and pyproject.toml files. 
 # If any tool reports issues, the GitHub Actions workflow will fail, and you can check the logs to identify and 
 # fix the problems.
 
-name: Linting and Typing
+name: Test and lint
 
 on:
   push:
@@ -36,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install isort black pylint mypy
+          pip install isort black pylint mypy pytest
           pip install .
 
       - name: Run isort
@@ -50,3 +49,6 @@ jobs:
 
       - name: Run mypy
         run: mypy .
+      
+      - name: Run pytest
+        run: pytest
