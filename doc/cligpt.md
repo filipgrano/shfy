@@ -66,7 +66,34 @@ cligpt_complete() {
     tput el
 }
 
-bind -x '"\C-g": cligpt_complete'
+bind -x '"\C-x\C-g": cligpt_complete'
+
+cligpt_change() {
+    tput sc
+
+    # Get the current command line
+    current_command="${READLINE_LINE:0:$READLINE_POINT}"
+
+    tput el1
+    printf '%s [cligpt]\n' "${PS1@P}$current_command"
+
+    # Prompt for user input on a separate line using the read_user_input function
+    user_input=$(read_user_input "Changes: ")
+
+    printf "[cligpt is working...]\n"
+
+    # Get the completion from the cligpt_completion Python script
+    completion=$(cligpt_completion "'$current_command'" "changes: '$user_input'")
+
+    # Restore the cursor position, clear the indicator, and update the command line
+    #tput rc
+    READLINE_LINE="$completion"
+    READLINE_POINT=${#completion}
+    tput el
+
+}
+
+bind -x '"\C-x\C-h": cligpt_change'                  
 ```
 Restart your terminal. Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, the shell will display an indicator while cligpt is working, and the existing line will be replaced with the suggested command.
 
