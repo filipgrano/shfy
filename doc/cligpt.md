@@ -48,21 +48,22 @@ Completion is currently supported for Bash and Zsh. More shells can probably be 
 Assuming cligpt_completion is in your $PATH. Add the following to your .bashrc or .bash_profile file:
 ```bash
 cligpt_complete() {
+    tput sc
+
     # Get the current command line
     current_command="${READLINE_LINE:0:$READLINE_POINT}"
 
-    # Save the current cursor position and print an indicator
-    tput sc
-    printf " [cligpt is working...]"
+    tput el1
+    printf '%s [cligpt]' "${PS1@P}$current_command"
 
     # Get the completion from the cligpt_completion Python script
     completion=$(cligpt_completion "$current_command")
 
     # Restore the cursor position, clear the indicator, and update the command line
     tput rc
-    tput el
     READLINE_LINE="$completion"
     READLINE_POINT=${#completion}
+    tput el
 }
 
 bind -x '"\C-g": cligpt_complete'
