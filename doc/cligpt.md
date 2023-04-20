@@ -115,7 +115,7 @@ Assuming cligpt_completion is in your $PATH. Add the following to your .zshrc fi
 ```zsh
 cligpt_complete() {
     # Get the current command line
-    current_command="${BUFFER[0,CURSOR]}"
+    current_command="$BUFFER"
 
     # Save the current cursor position and print an indicator
     tput sc
