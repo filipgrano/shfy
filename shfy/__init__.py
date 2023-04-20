@@ -4,7 +4,7 @@ import yaml
 
 
 def read_config() -> dict:
-    config_file = os.path.expanduser("~/.config/oai_tools/config.yaml")
+    config_file = os.path.expanduser("~/.config/shfy/config.yaml")
     if os.path.exists(config_file):
         with open(config_file, "r", encoding="utf-8") as config:
             return yaml.safe_load(config)
@@ -17,7 +17,7 @@ def get_api_key() -> str:
     if api_key:
         return api_key
 
-    config_file = os.path.expanduser("~/.config/oai_tools/api_key")
+    config_file = os.path.expanduser("~/.config/shfy/api_key")
     if os.path.exists(config_file):
         with open(config_file, "r", encoding="utf-8") as api_key_file:
             return api_key_file.read().strip()

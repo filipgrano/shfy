@@ -2,15 +2,14 @@ import sys
 
 import openai
 
-from oai_tools import get_api_key, read_config
-from oai_tools.cligpt import explain_command, generate_command
+from shfy import get_api_key, read_config
+from shfy.shfy import explain_command, generate_command
 
 openai.api_key = get_api_key()
 config = read_config()
-cligpt_config = config.get("cligpt", {})
-MODEL = cligpt_config.get("model", "gpt-3.5-turbo")
-MAX_TOKENS_COMMAND = cligpt_config.get("max_tokens", {}).get("command", 100)
-TEMPERATURE_COMMAND = cligpt_config.get("temperature", {}).get("command", 0.1)
+MODEL = config.get("model", "gpt-3.5-turbo")
+MAX_TOKENS_COMMAND = config.get("max_tokens", {}).get("command", 100)
+TEMPERATURE_COMMAND = config.get("temperature", {}).get("command", 0.1)
 
 
 def complete():
