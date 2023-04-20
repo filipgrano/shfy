@@ -51,7 +51,7 @@ Assuming cligpt_completion is in your $PATH. Add the following to your .bashrc o
 cligpt_completion() {
     tput sc
 
-    current_command="${READLINE_LINE}"
+    current_command="$READLINE_LINE"
 
     tput el1
     printf '%s [cligpt complete]' "${PS1@P}$current_command"
@@ -67,7 +67,7 @@ cligpt_completion() {
 bind -x '"\C-x\C-g": cligpt_completion'
 
 cligpt_explanation() {
-    current_command="${READLINE_LINE}"
+    current_command="$READLINE_LINE"
 
     tput el1
     printf '%s [cligpt explain]\n' "${PS1@P}$current_command"
@@ -90,7 +90,7 @@ read_user_input() {
 }
 
 cligpt_changes() {
-    current_command="${READLINE_LINE}"
+    current_command="$READLINE_LINE"
 
     tput el1
     printf '%s [cligpt]\n' "${PS1@P}$current_command"
