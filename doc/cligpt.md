@@ -113,27 +113,57 @@ Restart your terminal. Now, when you type a command or description and press the
 ### ZSH
 Assuming cligpt_completion is in your $PATH. Add the following to your .zshrc file:
 ```zsh
-cligpt_complete() {
-    # Get the current command line
-    current_command="$BUFFER"
+cligpt_completion() {
+    local current_command="$BUFFER"
 
-    # Save the current cursor position and print an indicator
-    tput sc
-    printf " [cligpt...]"
+    printf " [cligpt complete]"
 
-    # Get the completion from the cligpt_completion Python script
-    completion=$(cligpt_completion "$current_command")
+    local completion=$(cligpt_complete "$current_command")
 
-    # Restore the cursor position, clear the indicator, and update the command line
-    tput rc
-    tput el
     BUFFER="$completion"
     CURSOR=${#completion}
+    zle reset-prompt
 }
 
-# Register the cligpt_complete function as a widget
-zle -N cligpt_complete
+zle -N cligpt_completion
+bindkey '^X^G' cligpt_completion
 
-bindkey '^G' cligpt_complete
+cligpt_explanation() {
+    local current_command="$BUFFER"
+
+    printf " [cligpt explain]"
+
+    local explanation=$(cligpt_explain "$current_command")
+    printf '\nExplanation: %s\n' "$explanation"
+
+    BUFFER="$current_command"
+    CURSOR=${#current_command}
+    zle reset-prompt
+}
+
+zle -N cligpt_explanation
+bindkey '^X^F' cligpt_explanation
+
+autoload -Uz read-from-minibuffer
+
+cligpt_changes() {
+    local current_command="$BUFFER"
+
+    printf " [cligpt]"
+
+    read-from-minibuffer '> Changes: '
+    local user_input="$REPLY"
+
+    printf " [cligpt is working...]"
+
+    local completion=$(cligpt_complete "'$current_command'" "changes: '$user_input'")
+
+    BUFFER="$completion"
+    CURSOR=${#completion}
+    zle reset-prompt
+}
+
+zle -N cligpt_changes
+bindkey '^X^H' cligpt_changes
 ```
 Restart your terminal. Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, the shell will display an indicator while cligpt is working, and the existing line will be replaced with the suggested command.
