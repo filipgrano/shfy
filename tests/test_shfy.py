@@ -1,7 +1,7 @@
 import subprocess
 import sys
 
-from oai_tools.cligpt import explain_command, generate_command, main
+from shfy.shfy import explain_command, generate_command, main
 
 
 def test_generate_command(mocker):
@@ -28,7 +28,7 @@ def test_execute_command_stdout_and_stderr():
     # Prepare the command to run the execute_command function in a separate Python process
     python_code = """
 import sys
-from oai_tools.cligpt import execute_command
+from shfy.shfy import execute_command
 
 command = "echo 'Hello, World!' && echo 'Error: Test' >&2"
 execute_command(command)
@@ -45,10 +45,10 @@ execute_command(command)
 
 
 def test_main(mocker):
-    generate_command_mock = mocker.patch("oai_tools.cligpt.generate_command")
+    generate_command_mock = mocker.patch("shfy.shfy.generate_command")
     # explain_command_mock =
-    mocker.patch("oai_tools.cligpt.explain_command")
-    execute_command_mock = mocker.patch("oai_tools.cligpt.execute_command")
+    mocker.patch("shfy.shfy.explain_command")
+    execute_command_mock = mocker.patch("shfy.shfy.execute_command")
     mocker.patch("builtins.input", side_effect=["n"])  # User chooses not to execute the command
 
     mocker.patch.object(sys, "argv", ["script_name", "prompt"])

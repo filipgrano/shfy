@@ -5,22 +5,21 @@ import sys
 
 import openai
 
-from oai_tools import get_api_key, read_config
+from shfy import get_api_key, read_config
 
 openai.api_key = get_api_key()
 
 config = read_config()
-cligpt_config = config.get("cligpt", {})
 
-LOG_LEVEL = cligpt_config.get("loglevel", "INFO")
+LOG_LEVEL = config.get("loglevel", "INFO")
 logging.basicConfig(level=logging.getLevelName(LOG_LEVEL))
 
-MODEL = cligpt_config.get("model", "gpt-3.5-turbo")
-AUTO_EXPLAIN = cligpt_config.get("auto_explain", False)
-MAX_TOKENS_COMMAND = cligpt_config.get("max_tokens", {}).get("command", 100)
-MAX_TOKENS_EXPLANATION = cligpt_config.get("max_tokens", {}).get("explanation", 100)
-TEMPERATURE_COMMAND = cligpt_config.get("temperature", {}).get("command", 0.1)
-TEMPERATURE_EXPLANATION = cligpt_config.get("temperature", {}).get("explanation", 0.1)
+MODEL = config.get("model", "gpt-3.5-turbo")
+AUTO_EXPLAIN = config.get("auto_explain", False)
+MAX_TOKENS_COMMAND = config.get("max_tokens", {}).get("command", 100)
+MAX_TOKENS_EXPLANATION = config.get("max_tokens", {}).get("explanation", 100)
+TEMPERATURE_COMMAND = config.get("temperature", {}).get("command", 0.1)
+TEMPERATURE_EXPLANATION = config.get("temperature", {}).get("explanation", 0.1)
 
 
 def get_shell() -> str:

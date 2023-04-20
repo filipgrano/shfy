@@ -1,6 +1,6 @@
 import pytest
 
-from oai_tools import get_api_key, read_config
+from shfy import get_api_key, read_config
 
 
 def test_read_config_existing_file(mocker):

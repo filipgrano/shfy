@@ -3,15 +3,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from oai_tools.cligpt_completion import complete as completion_complete
-from oai_tools.cligpt_completion import explain as completion_explain
+from shfy.shfy_completion import complete as completion_complete
+from shfy.shfy_completion import explain as completion_explain
 
 
 @pytest.fixture
 def mock_generate_command(mocker):
     mock_response = MagicMock()
     mock_response.choices[0].message.content = "suggested command 123"
-    return mocker.patch("oai_tools.cligpt_completion.generate_command", return_value=mock_response)
+    return mocker.patch("shfy.shfy_completion.generate_command", return_value=mock_response)
 
 
 def test_completion_complete(mocker, mock_generate_command, capfd):  # pylint: disable=W0621
@@ -30,7 +30,7 @@ def test_completion_complete(mocker, mock_generate_command, capfd):  # pylint: d
 def mock_explain_command(mocker):
     mock_response = MagicMock()
     mock_response.choices[0].message.content = "explanation of the command 123"
-    return mocker.patch("oai_tools.cligpt_completion.explain_command", return_value=mock_response)
+    return mocker.patch("shfy.shfy_completion.explain_command", return_value=mock_response)
 
 
 def test_completion_explain(mocker, mock_explain_command, capfd):  # pylint: disable=W0621
