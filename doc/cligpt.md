@@ -47,53 +47,66 @@ Completion is currently supported for Bash and Zsh. More shells can probably be 
 ### BASH
 Assuming cligpt_completion is in your $PATH. Add the following to your .bashrc or .bash_profile file:
 ```bash
-cligpt_complete() {
+### START CLIGPT ###
+cligpt_completion() {
     tput sc
 
-    # Get the current command line
-    current_command="${READLINE_LINE:0:$READLINE_POINT}"
+    current_command="${READLINE_LINE}"
 
     tput el1
-    printf '%s [cligpt]' "${PS1@P}$current_command"
+    printf '%s [cligpt complete]' "${PS1@P}$current_command"
 
-    # Get the completion from the cligpt_completion Python script
-    completion=$(cligpt_completion "$current_command")
+    completion=$(cligpt_complete "$current_command")
 
-    # Restore the cursor position, clear the indicator, and update the command line
     tput rc
     READLINE_LINE="$completion"
     READLINE_POINT=${#completion}
     tput el
 }
 
-bind -x '"\C-x\C-g": cligpt_complete'
+bind -x '"\C-x\C-g": cligpt_completion'
 
-cligpt_change() {
-    tput sc
+cligpt_explanation() {
+    current_command="${READLINE_LINE}"
 
-    # Get the current command line
-    current_command="${READLINE_LINE:0:$READLINE_POINT}"
+    tput el1
+    printf '%s [cligpt explain]\n' "${PS1@P}$current_command"
+
+    explanation=$(cligpt_explain "$current_command")
+    printf 'Explanation: %s\n' "$explanation"
+}
+
+bind -x '"\C-x\C-f": cligpt_explanation'
+
+read_user_input() {
+    local prompt=$1
+    local input
+
+    local saved_stty=$(stty -g)
+    read -ep "> $prompt" input < /dev/tty
+    stty "$saved_stty"
+
+    printf "%s" "$input"
+}
+
+cligpt_changes() {
+    current_command="${READLINE_LINE}"
 
     tput el1
     printf '%s [cligpt]\n' "${PS1@P}$current_command"
 
-    # Prompt for user input on a separate line using the read_user_input function
     user_input=$(read_user_input "Changes: ")
 
     printf "[cligpt is working...]\n"
+    completion=$(cligpt_complete "'$current_command'" "changes: '$user_input'")
 
-    # Get the completion from the cligpt_completion Python script
-    completion=$(cligpt_completion "'$current_command'" "changes: '$user_input'")
-
-    # Restore the cursor position, clear the indicator, and update the command line
-    #tput rc
     READLINE_LINE="$completion"
     READLINE_POINT=${#completion}
     tput el
-
 }
 
-bind -x '"\C-x\C-h": cligpt_change'                  
+bind -x '"\C-x\C-h": cligpt_changes'
+### END CLIGPT ###
 ```
 Restart your terminal. Now, when you type a command or description and press the key combination (Ctrl-G) before pressing Enter, the shell will display an indicator while cligpt is working, and the existing line will be replaced with the suggested command.
 

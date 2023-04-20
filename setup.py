@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="oai_tools",
-    version="0.1.3",
+    version="0.1.4",
     author="Filip Granö",
     author_email="filip-accounts@grano.me",
     description="Collection of useful tools built on top of OpenAI's API",
@@ -15,7 +15,11 @@ setup(
     packages=find_packages(),
     install_requires=["openai>=0.27.0", "PyYAML", "types-PyYAML"],
     entry_points={
-        "console_scripts": ["cligpt=oai_tools.cligpt:main", "cligpt_completion=oai_tools.cligpt_completion:main"],
+        "console_scripts": [
+            "cligpt=oai_tools.cligpt:main",
+            "cligpt_complete=oai_tools.cligpt_completion:complete",
+            "cligpt_explain=oai_tools.cligpt_completion:explain",
+        ],
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
