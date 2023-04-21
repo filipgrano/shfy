@@ -9,6 +9,8 @@ Shfy is most powerful as a shell completion tool. See the [shell completion](#sh
 
 Shfy uses OpenAI's GPT models to generate these suggestions and explanations.
 
+[![IShfy demo video](https://img.youtube.com/vi/uYIzrmKmMNc/0.jpg)](https://www.youtube.com/watch?v=uYIzrmKmMNc)
+
 ## Installation or Upgrade
 `pip install --upgrade shfy`
 
