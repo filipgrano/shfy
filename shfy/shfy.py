@@ -102,6 +102,7 @@ def execute_command(command: str) -> None:
             command = f'cmd.exe /C "{command}"'
     else:
         command = command.replace('"', r"\"")
+        command = command.replace("$", r"\$")
         command = f'{shell} -c "{command}"'
 
     return_code = os.system(command)
