@@ -1,32 +1,35 @@
 import sys
 
-import openai
-
-from shfy import get_api_key, read_config
 from shfy.shfy import explain_command, generate_command
 
-openai.api_key = get_api_key()
-config = read_config()
-MODEL = config.get("model", "gpt-3.5-turbo")
-MAX_TOKENS_COMMAND = config.get("max_tokens", {}).get("command", 100)
-TEMPERATURE_COMMAND = config.get("temperature", {}).get("command", 0.1)
 
-
-def complete():
+def complete() -> None:
     try:
         prompt = " ".join(sys.argv[1:])
         completion_response = generate_command(prompt)
-        completion = completion_response.choices[0].message.content.strip()
-        print(completion)
+        completion = completion_response.choices[0].message.content
+        if completion is None:
+            raise ValueError("No completion returned from OpenAI")
+        print(completion.strip())
     except KeyboardInterrupt:
         print("\nAborted by user.")
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
 
-def explain():
+def explain() -> None:
     try:
         prompt = " ".join(sys.argv[1:])
         explanation_response = explain_command(prompt)
-        explanation = explanation_response.choices[0].message.content.strip()
-        print(explanation)
+        explanation = explanation_response.choices[0].message.content
+        if explanation is None:
+            raise ValueError("No explanation returned from OpenAI")
+        print(explanation.strip())
     except KeyboardInterrupt:
         print("\nAborted by user.")
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)

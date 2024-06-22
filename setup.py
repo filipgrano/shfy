@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="shfy",
-    version="0.1.4",
+    version="0.2.0",
     author="Filip Granö",
     author_email="filip-accounts@grano.me",
     description="Shfy (Shellify) provides AI-powered assistance, suggestions, and automation to simplify and streamline command line tasks.",
@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/filipgrano/shfy",
     packages=find_packages(),
-    install_requires=["openai>=0.27.0", "PyYAML", "types-PyYAML"],
+    install_requires=["openai>=1.0.0", "PyYAML", "types-PyYAML"],
     entry_points={
         "console_scripts": [
             "shfy=shfy.shfy:main",
