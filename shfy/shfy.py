@@ -39,13 +39,18 @@ def get_shell() -> str:
 
 def generate_command(prompt: str) -> ChatCompletion:
     """Generate a shell command based on the given prompt."""
-    query = f"""Write a shell command that works on the {platform.system()} platform in the following shell: {os.path.basename(get_shell())}
+    system_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+    shell_name = os.path.basename(get_shell())
+
+    query = f"""
+        Write a shell command that works on the {system_info} platform in the {shell_name} shell.
 
         The command must accomplish this task:
 
         {prompt}
 
-        Return ONLY the command, no other explanation, words, code highlighting, or text."""
+        Return ONLY the command, no other explanation, words, code highlighting, or text.
+    """
 
     logging.debug("Generating command for prompt: %s", prompt)
 
@@ -61,10 +66,17 @@ def generate_command(prompt: str) -> ChatCompletion:
 
 def explain_command(suggestion: str, prompt: str = "") -> ChatCompletion:
     """Generate an explanation of a suggested command."""
+    system_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+    shell_name = os.path.basename(get_shell())
+
     if prompt == "":
-        query = f"Explain in brief how the command '{suggestion}' works on the {platform.system()} platform in the {os.path.basename(get_shell())} shell, what it does, and if it's safe to use (why not if not). Return the explanation in a single line. No other words, code highlighting, or text. Don't repeat the command or the task."
+        query = f"""
+            Explain in brief how the command '{suggestion}' works on the {system_info} platform in the {shell_name} shell, what it does, and if it's safe to use (why not if not). Return the explanation in a single line. No other words, code highlighting, or text. Don't repeat the command or the task.
+        """
     else:
-        query = f"Explain in brief how the command '{suggestion}' works on the {platform.system()} platform in the {os.path.basename(get_shell())} shell, what it does, and if it's safe to use (why not if not). Also state if it fulfills the requested task '{prompt}' or not. Return the explanation and task fulfillment status in a single line. No other words, code highlighting, or text. Don't repeat the command or the task."
+        query = f"""
+            Explain in brief how the command '{suggestion}' works on the {system_info} platform in the {shell_name} shell, what it does, and if it's safe to use (why not if not). Also state if it fulfills the requested task '{prompt}' or not. Return the explanation and task fulfillment status in a single line. No other words, code highlighting, or text. Don't repeat the command or the task.
+        """
 
     logging.debug("Explaining command: %s", suggestion)
 
